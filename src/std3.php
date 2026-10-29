@@ -277,11 +277,18 @@ try {
     $valorAgregadoTotal = 0;
     
     while ($row = pg_fetch_assoc($result)) {
-        $codigoEntidad = str_pad(trim($row['entidad']), 2, '0', STR_PAD_LEFT);
-        if (isset($entidades[$codigoEntidad])) {
-            $row['codigo_entidad'] = $codigoEntidad;
-            $row['nombre_entidad'] = $entidades[$codigoEntidad];
-            $row['nombre_normalizado'] = normalizarNombre($entidades[$codigoEntidad]);
+    $nombreEntidad = trim($row['nombre']);
+
+    $codigoEntidad = array_search(
+        normalizarNombre($nombreEntidad),
+        array_map('normalizarNombre', $entidades),
+        true
+    );
+
+    if ($codigoEntidad !== false) {
+        $row['codigo_entidad'] = $codigoEntidad;
+        $row['nombre_entidad'] = $entidades[$codigoEntidad];
+        $row['nombre_normalizado'] = normalizarNombre($entidades[$codigoEntidad]);
             
             $row['produccion_total'] = floatval($row['produccion_total']) ?: 0;
             $row['consumo_intermedio'] = floatval($row['consumo_intermedio']) ?: 0;
